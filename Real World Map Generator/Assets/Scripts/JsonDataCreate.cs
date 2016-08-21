@@ -8,20 +8,36 @@ public class JsonDataCreate : MonoBehaviour
 {
     public Map_Co_Ordinates mapList;
 
-    void Start()
-    {
-    }
-
 
     void Awake()
     {
         string mapData = File.ReadAllText(Application.dataPath + "/Resources/Land.json");
         mapList = JsonConvert.DeserializeObject<Map_Co_Ordinates>(mapData);
         Debug.LogWarning(mapList.features.Count);
+        Debug.LogWarning(mapList.features[0].geometry.coordinates[0][0][0]);
+        Debug.LogWarning(mapList.features[0].geometry.coordinates[0][0][1]);
+        foreach (Feature feature in mapList.features)
+        {
+            Geometry geometry = feature.geometry;
+            for (int i = 0; i < geometry.coordinates.Count; i++)
+            {
+                var corordinatesFirst = geometry.coordinates[i];
+                for (int j = 0; j < corordinatesFirst.Count; j++)
+                {
+                    var corordinatesSecond = corordinatesFirst[j];
+                    //Debug.Log(corordinatesFirst.Count + "__" + corordinatesSecond.Count + "_" + corordinatesSecond[0]
+                    //    + "," + corordinatesSecond[1]);
+                    GameObject gme = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    gme.transform.position = new Vector3((float)corordinatesSecond[0], (float)corordinatesSecond[1], 0.0f);
+                    DestroyImmediate(gme.GetComponent<Collider>());
+                    gme.transform.parent = transform;
+                }
+            }
+        }
     }
 
 
-    public class Properties
+    public class Property
     {
         public string name { get; set; }
     }
@@ -29,10 +45,10 @@ public class JsonDataCreate : MonoBehaviour
     public class Crs
     {
         public string type { get; set; }
-        public Properties properties { get; set; }
+        public Property properties { get; set; }
     }
 
-    public class Properties2
+    public class Properties
     {
         public string featurecla { get; set; }
         public int scalerank { get; set; }
@@ -47,7 +63,7 @@ public class JsonDataCreate : MonoBehaviour
     public class Feature
     {
         public string type { get; set; }
-        public Properties2 properties { get; set; }
+        public Properties properties { get; set; }
         public Geometry geometry { get; set; }
     }
 
